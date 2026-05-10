@@ -278,6 +278,64 @@ streamlit run ui/streamlit_app.py
 The Streamlit app tries to call the FastAPI endpoints first. If FastAPI is not
 running, it falls back to loading the saved local artifacts directly.
 
+## Run on the Local Network
+
+By default, `127.0.0.1` means "this computer only". If you want another device
+on the same Wi-Fi or LAN to open the project, run the servers on `0.0.0.0`.
+
+First, find your computer's local IP address.
+
+Windows PowerShell:
+
+```powershell
+Get-NetIPAddress -AddressFamily IPv4
+```
+
+Look for an address similar to:
+
+```text
+192.168.x.x
+```
+
+In this example, assume the computer IP is:
+
+```text
+192.168.100.59
+```
+
+Run FastAPI for network access:
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+Run Streamlit for network access:
+
+```bash
+streamlit run ui/streamlit_app.py --server.address 0.0.0.0 --server.port 8501
+```
+
+Then open these URLs from another device on the same network:
+
+```text
+FastAPI docs: http://192.168.100.59:8000/docs
+Streamlit app: http://192.168.100.59:8501
+```
+
+If the browser cannot connect, Windows Firewall may be blocking the ports. Allow
+Python through Windows Firewall, or create firewall rules for ports `8000` and
+`8501`.
+
+PowerShell as Administrator:
+
+```powershell
+New-NetFirewallRule -DisplayName "NLP FastAPI 8000" -Direction Inbound -Protocol TCP -LocalPort 8000 -Action Allow
+New-NetFirewallRule -DisplayName "NLP Streamlit 8501" -Direction Inbound -Protocol TCP -LocalPort 8501 -Action Allow
+```
+
+Important note: this is local network deployment, not public internet hosting.
+Only devices connected to the same network can access it.
+
 ## API Endpoints
 
 ### Health
