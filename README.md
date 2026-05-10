@@ -344,66 +344,111 @@ deployment.
 
 There are two common options:
 
-1. Cloud hosting, such as Render or Streamlit Community Cloud.
+1. Cloud hosting, such as Koyeb or Streamlit Community Cloud.
 2. A temporary tunnel, such as ngrok or Cloudflare Tunnel.
 
 For a university project, cloud hosting is usually cleaner because the app gets
 a public URL that can be opened from any network.
 
-### Option 1: Deploy Both FastAPI and Streamlit on Render
+### Option 1: Deploy Both FastAPI and Streamlit on Koyeb
 
-This repository includes a `render.yaml` file. Render can use it to create two
-public services:
+Koyeb can deploy Python web services directly from GitHub. For this project,
+create two Koyeb services from the same repository:
 
-- `nlp-search-engine-api`: FastAPI backend
-- `nlp-search-engine-ui`: Streamlit frontend
+- one service for FastAPI
+- one service for Streamlit
 
-The project also includes `.python-version` to make the deployment use Python
+The project includes `runtime.txt` and `.python-version` to request Python
 3.11.11.
 
-Steps:
+#### Deploy the FastAPI Backend on Koyeb
 
-1. Push the project to GitHub.
-2. Go to Render:
+1. Push the latest project to GitHub.
+2. Go to Koyeb:
 
 ```text
-https://render.com
+https://www.koyeb.com
 ```
 
 3. Sign in with GitHub.
-4. Choose **New +** then **Blueprint**.
-5. Select this repository.
-6. Render will detect `render.yaml`.
-7. Click **Deploy Blueprint**.
-
-Render will build and deploy two services. After deployment, you will get URLs
-similar to:
+4. Create a new **Web Service**.
+5. Choose GitHub as the deployment method.
+6. Select this repository:
 
 ```text
-https://nlp-search-engine-api.onrender.com
-https://nlp-search-engine-ui.onrender.com
+Omarshaltot/NLP
+```
+
+7. Choose branch:
+
+```text
+main
+```
+
+8. Use Buildpack/Python deployment.
+9. Set the run command to:
+
+```bash
+uvicorn app.main:app --host 0.0.0.0
+```
+
+10. Set the exposed port to:
+
+```text
+8000
+```
+
+11. Deploy.
+
+After deployment, Koyeb gives you a public API URL similar to:
+
+```text
+https://your-fastapi-service.koyeb.app
 ```
 
 FastAPI docs will be available at:
 
 ```text
-https://nlp-search-engine-api.onrender.com/docs
+https://your-fastapi-service.koyeb.app/docs
 ```
 
-The Streamlit GUI will be available at:
+#### Deploy the Streamlit Frontend on Koyeb
+
+Create a second Koyeb Web Service from the same GitHub repository.
+
+Use this run command:
+
+```bash
+streamlit run ui/streamlit_app.py --server.address 0.0.0.0 --server.port 8501 --server.headless true
+```
+
+Set the exposed port to:
 
 ```text
-https://nlp-search-engine-ui.onrender.com
+8501
 ```
 
-After the API is deployed, open the Streamlit app and put the public FastAPI URL
-in the sidebar field named **FastAPI URL**.
-
-You can also set an environment variable in the Streamlit Render service:
+Add this environment variable to the Streamlit service:
 
 ```text
-FASTAPI_URL=https://your-api-service-url.onrender.com
+FASTAPI_URL=https://your-fastapi-service.koyeb.app
 ```
+
+Replace the value with your real FastAPI service URL from Koyeb.
+
+After deployment, Koyeb gives you a public Streamlit URL similar to:
+
+```text
+https://your-streamlit-service.koyeb.app
+```
+
+Now anyone can open the Streamlit URL from any network. The Streamlit app will
+call the public FastAPI backend using the `FASTAPI_URL` environment variable.
+
+Koyeb references:
+
+- FastAPI deployment: https://www.koyeb.com/docs/deploy/fastapi
+- Koyeb deployment quick start: https://www.koyeb.com/docs/deploy
 
 ### Option 2: Deploy Only the Streamlit GUI
 
