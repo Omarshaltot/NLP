@@ -16,7 +16,10 @@ CONFUSION_MATRIX_PATH = PROJECT_ROOT / "artifacts" / "confusion_matrix.png"
 
 
 def get_api_base_url() -> str:
-    default_api_url = os.getenv("FASTAPI_URL", "http://127.0.0.1:8000")
+    default_api_url = os.getenv(
+        "FASTAPI_URL",
+        "https://vice-vegetation-tribes-gained.trycloudflare.com",
+    )
     return st.sidebar.text_input("FastAPI URL", value=default_api_url).rstrip("/")
 
 
