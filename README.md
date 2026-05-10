@@ -21,6 +21,120 @@ classification, where a model predicts the category of a document.
 Dataset reference:
 [scikit-learn 20 Newsgroups dataset](https://scikit-learn.org/stable/datasets/real_world.html#the-20-newsgroups-text-dataset)
 
+## Tools Used and Why
+
+This project uses classical NLP, machine learning, API, and GUI tools. Each tool
+has a specific purpose in the project.
+
+| Tool | Why it was used |
+|---|---|
+| Python | Main programming language for the whole project. |
+| scikit-learn | Used to load the dataset, build TF-IDF features, train classifiers, and calculate evaluation metrics. |
+| `fetch_20newsgroups` | Loads the 20 Newsgroups dataset directly from scikit-learn. |
+| Regular expressions `re` | Used during preprocessing to extract valid word tokens and remove punctuation/numbers. |
+| `ENGLISH_STOP_WORDS` | Removes common English stop words such as "the", "is", and "and". |
+| `TfidfVectorizer` | Converts text documents into numerical TF-IDF vectors. |
+| Cosine similarity | Measures similarity between the user query vector and document vectors for search. |
+| `MultinomialNB` | A classical Naive Bayes classifier commonly used for text classification. |
+| `LogisticRegression` | A strong classical linear classifier used for comparison. |
+| `OneVsRestClassifier` | Allows Logistic Regression to handle the 20-class classification problem. |
+| Accuracy, Precision, Recall, F1-score | Required metrics used to evaluate classifier performance. |
+| Confusion Matrix | Shows correct and incorrect predictions for each class. |
+| matplotlib | Saves the confusion matrix as `artifacts/confusion_matrix.png`. |
+| joblib | Saves and loads the trained classifier, fitted vectorizer, labels, and search index. |
+| JSON | Saves evaluation results in `artifacts/metrics.json`. |
+| FastAPI | Provides a backend API so the trained system can be used through HTTP endpoints. |
+| Pydantic | Validates FastAPI request and response data. |
+| Uvicorn | Runs the FastAPI server locally. |
+| Streamlit | Provides a simple browser GUI for search, classification, metrics, and labels. |
+| requests | Allows the Streamlit app to call the FastAPI endpoints. |
+| Git/GitHub | Used for version control and project submission. |
+
+### Why FastAPI Was Used
+
+FastAPI is used as the deployment layer for the project. After training, the
+classifier, vectorizer, metrics, labels, and search index are saved as artifacts.
+FastAPI loads these saved artifacts and exposes them through API endpoints.
+
+This means another program can send requests such as:
+
+```text
+POST /search
+POST /predict
+GET /metrics
+GET /labels
+```
+
+and receive JSON responses without retraining the model.
+
+In simple words:
+
+> FastAPI turns the trained machine learning system into a usable backend
+> service.
+
+### Why Streamlit Was Used
+
+Streamlit is used to create a simple graphical user interface. Instead of using
+curl commands or API docs, a user can open a browser page and:
+
+- enter a search query
+- choose the number of results
+- classify raw text
+- view evaluation metrics
+- view the confusion matrix
+- view all class labels
+
+In simple words:
+
+> FastAPI is mainly for programs and APIs, while Streamlit is for humans using a
+> browser.
+
+### Why joblib Was Used
+
+Training the model every time would be slow and unnecessary. The project uses
+joblib to save the trained model and fitted vectorizer after training.
+
+Saved artifacts include:
+
+- `artifacts/classifier.joblib`
+- `artifacts/vectorizer.joblib`
+- `artifacts/class_names.joblib`
+- `artifacts/search_index.joblib`
+
+FastAPI and Streamlit load these files directly, so the project can make
+predictions and search documents immediately after startup.
+
+### Why TF-IDF Was Used
+
+Machine learning models cannot directly understand raw text, so text must be
+converted into numbers. TF-IDF gives higher weight to important words and lower
+weight to very common words.
+
+This makes TF-IDF useful for both:
+
+- document retrieval
+- text classification
+
+### Why Cosine Similarity Was Used
+
+The search engine converts both the user query and all documents into TF-IDF
+vectors. Cosine similarity measures how close the query vector is to each
+document vector.
+
+Documents with higher cosine similarity scores are considered more relevant and
+are returned first.
+
+### Why Two Classifiers Were Used
+
+The assignment requires at least one classifier, but this project trains two for
+bonus comparison:
+
+- Multinomial Naive Bayes
+- Logistic Regression
+
+Both models are evaluated, and the one with the best macro F1-score is saved as
+the final classifier.
+
 ## Project Structure
 
 ```text
