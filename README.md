@@ -336,6 +336,142 @@ New-NetFirewallRule -DisplayName "NLP Streamlit 8501" -Direction Inbound -Protoc
 Important note: this is local network deployment, not public internet hosting.
 Only devices connected to the same network can access it.
 
+## Deploy on the Public Internet
+
+Local network deployment only works for devices on the same Wi-Fi/LAN. If you
+want the project to be available from any network, you need public internet
+deployment.
+
+There are two common options:
+
+1. Cloud hosting, such as Render or Streamlit Community Cloud.
+2. A temporary tunnel, such as ngrok or Cloudflare Tunnel.
+
+For a university project, cloud hosting is usually cleaner because the app gets
+a public URL that can be opened from any network.
+
+### Option 1: Deploy Both FastAPI and Streamlit on Render
+
+This repository includes a `render.yaml` file. Render can use it to create two
+public services:
+
+- `nlp-search-engine-api`: FastAPI backend
+- `nlp-search-engine-ui`: Streamlit frontend
+
+The project also includes `.python-version` to make the deployment use Python
+3.11.11.
+
+Steps:
+
+1. Push the project to GitHub.
+2. Go to Render:
+
+```text
+https://render.com
+```
+
+3. Sign in with GitHub.
+4. Choose **New +** then **Blueprint**.
+5. Select this repository.
+6. Render will detect `render.yaml`.
+7. Click **Deploy Blueprint**.
+
+Render will build and deploy two services. After deployment, you will get URLs
+similar to:
+
+```text
+https://nlp-search-engine-api.onrender.com
+https://nlp-search-engine-ui.onrender.com
+```
+
+FastAPI docs will be available at:
+
+```text
+https://nlp-search-engine-api.onrender.com/docs
+```
+
+The Streamlit GUI will be available at:
+
+```text
+https://nlp-search-engine-ui.onrender.com
+```
+
+After the API is deployed, open the Streamlit app and put the public FastAPI URL
+in the sidebar field named **FastAPI URL**.
+
+You can also set an environment variable in the Streamlit Render service:
+
+```text
+FASTAPI_URL=https://your-api-service-url.onrender.com
+```
+
+### Option 2: Deploy Only the Streamlit GUI
+
+The Streamlit app can also work without a running FastAPI server because it has
+a local fallback that loads the saved artifacts directly.
+
+Steps:
+
+1. Go to Streamlit Community Cloud:
+
+```text
+https://share.streamlit.io
+```
+
+2. Sign in with GitHub.
+3. Create a new app from this repository.
+4. Select branch:
+
+```text
+main
+```
+
+5. Select app file:
+
+```text
+ui/streamlit_app.py
+```
+
+6. Deploy.
+
+This gives you a public Streamlit URL ending with:
+
+```text
+.streamlit.app
+```
+
+### Option 3: Temporary Public Link Using a Tunnel
+
+If you only need a temporary public link while your laptop is running, use a
+tunneling tool such as ngrok.
+
+Run FastAPI locally:
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+Then expose it:
+
+```bash
+ngrok http 8000
+```
+
+Run Streamlit locally:
+
+```bash
+streamlit run ui/streamlit_app.py --server.address 0.0.0.0 --server.port 8501
+```
+
+Then expose it:
+
+```bash
+ngrok http 8501
+```
+
+This gives temporary public URLs. The downside is that the URLs usually change
+when you restart the tunnel, and your laptop must stay on.
+
 ## API Endpoints
 
 ### Health

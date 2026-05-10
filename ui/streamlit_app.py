@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -15,7 +16,8 @@ CONFUSION_MATRIX_PATH = PROJECT_ROOT / "artifacts" / "confusion_matrix.png"
 
 
 def get_api_base_url() -> str:
-    return st.sidebar.text_input("FastAPI URL", value="http://127.0.0.1:8000").rstrip("/")
+    default_api_url = os.getenv("FASTAPI_URL", "http://127.0.0.1:8000")
+    return st.sidebar.text_input("FastAPI URL", value=default_api_url).rstrip("/")
 
 
 def call_api(method: str, endpoint: str, api_base_url: str, **kwargs: Any) -> dict[str, Any]:
